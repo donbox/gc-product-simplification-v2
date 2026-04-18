@@ -387,3 +387,127 @@ These are the questions I would want this repo to work through next.
    faces of the same underlying mechanism?
 5. Where should machine-wide configuration and city-local workflow be more
    deliberately separated?
+
+## Proposed Solution Directions
+
+This section is intentionally forward-looking. It does not prescribe the final
+product surface, but it does record the simplification moves that currently
+look most promising.
+
+### 1. Deliberately separate machine admin from city workflow
+
+GC appears to contain two different operational worlds:
+
+- machine-wide management and discovery
+- work inside a specific city
+
+The product likely gets easier to teach once those worlds are more visibly
+separated.
+
+Examples of what that could mean:
+
+- commands like `cities`, `register`, `unregister`, and `supervisor` are
+  grouped and documented as machine-admin surfaces
+- commands like `start`, `stop`, `status`, and day-to-day session/workflow
+  commands are framed as city workflow
+- machine-known state is treated as setup/admin state rather than as just one
+  more peer workflow
+
+### 2. Create a stronger operator-confidence front door
+
+Today, "what is happening?" and "what is wrong?" are spread across multiple
+surfaces.
+
+The product likely benefits from a smaller number of obvious first stops for:
+
+- overall city health
+- current runtime activity
+- deeper debugging when the summary is not enough
+
+I would expect a simpler GC to have a clearer layered story such as:
+
+- one primary status/health entry point
+- one deeper diagnostic entry point
+- specialist tools behind those, not beside them
+
+### 3. More clearly distinguish workflow surfaces from substrate surfaces
+
+Commands like `gc bd`, `gc event emit`, and some of the raw tracing/runtime
+tools feel more like substrate or maintenance interfaces than normal product
+workflow.
+
+That suggests a likely simplification move:
+
+- keep the power
+- but frame it as advanced/admin tooling rather than front-door product
+  vocabulary
+
+This may be primarily a zoning and documentation problem, not a deletion
+problem.
+
+### 4. Compare and potentially consolidate the execution pathways
+
+GC currently exposes several ways to cause work to happen:
+
+- `sling`
+- `order run`
+- `formula cook`
+- `converge`
+- `session submit`
+- `session nudge`
+
+I do not assume these all collapse to one mechanism. I do think they deserve
+one explicit comparative pass that asks:
+
+- which are end-user workflows
+- which are orchestration internals
+- which are authoring/debugging helpers
+- which are effectively the same story with different entry points
+
+Even if all of them survive, clearer role definitions would simplify the
+product.
+
+### 5. Prefer fewer, more intentional top-level zones
+
+A likely end-state is not "every current command gets renamed." It is more
+likely:
+
+- fewer obvious product zones
+- better distinction between primary and specialized surfaces
+- less top-level competition between unrelated workflows
+
+This does not require flattening everything. It requires stronger product
+intent about what belongs together.
+
+## Assumptions From The Noun Work
+
+This note assumes the noun-centric redesign lands well enough to provide a
+cleaner object model for:
+
+- city
+- rig
+- session
+- agent
+- formula
+- order
+- skill
+- mcp
+
+More specifically, I would expect that work to help by:
+
+- clarifying which nouns are true top-level product objects
+- clarifying which ones are subresources or supporting components
+- making exact targeting and ownership more teachable
+- reducing today’s ambiguity around runtime vs template vs configuration nouns
+
+If that work succeeds, this repo should not need to re-argue noun identity. It
+should be able to focus on broader product questions like:
+
+- what are the main zones of the product
+- which surfaces are primary versus advanced
+- how operator, authoring, runtime, and admin concerns should be separated
+
+In other words:
+
+- noun work should make the objects clearer
+- this work should make the product easier to navigate
