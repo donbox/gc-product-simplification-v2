@@ -523,7 +523,7 @@ tradeoffs and ergonomics.
 ```text
 gc
   city
-  machine
+  system
   pack
   registry
   rig
@@ -567,23 +567,23 @@ What this does:
 - makes `status` explicitly city-scoped
 - keeps config and image staging close to the city they act on
 
-### 2. `gc machine`
+### 2. `gc system`
 
-This becomes the machine-admin surface.
+This becomes the system-admin surface.
 
 ```text
-gc machine city list
-gc machine city register
-gc machine city unregister
+gc system city list
+gc system city register
+gc system city unregister
 
-gc machine supervisor install
-gc machine supervisor start
-gc machine supervisor stop
-gc machine supervisor status
-gc machine supervisor logs
-gc machine supervisor reload
-gc machine supervisor run
-gc machine supervisor uninstall
+gc system supervisor install
+gc system supervisor start
+gc system supervisor stop
+gc system supervisor status
+gc system supervisor logs
+gc system supervisor reload
+gc system supervisor run
+gc system supervisor uninstall
 ```
 
 What this does:
@@ -604,6 +604,14 @@ gc registry ...
 I would keep them top-level rather than bury them under `city`, because they
 are likely to stay important enough and broad enough to justify first-class
 status.
+
+The asymmetry with `gc system city register` is intentional in this strawman:
+
+- city registration is a system concern because it registers a city with the
+  system-known supervisor/discovery layer
+- registry add/remove stays under `gc registry` because it edits the registry
+  configuration object itself, and `search`/`show` already make `registry` a
+  coherent workflow family
 
 ### 4. Noun families
 
