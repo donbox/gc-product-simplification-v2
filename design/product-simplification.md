@@ -24,6 +24,28 @@ This note intentionally does **not** try to settle:
 
 Those tracks matter, but they each already have their own design home.
 
+## Current Status
+
+This note has reached a useful intermediate state:
+
+- the current product has been mapped
+- the major simplification seams are visible
+- an exploratory command-tree strawman exists
+
+At this point, the best next step is probably **not** to keep refining the
+tree in isolation. The noun work appears to be the gating step for sharper
+progress here, especially around:
+
+- `session` and `agent`
+- `skill`, `mcp`, and overlays
+- which "do work now" operations deserve top-level ergonomic treatment
+
+So this note should now be read primarily as:
+
+- a pressure document
+- a product map
+- a list of simplification hypotheses to revisit after the noun work lands
+
 ## Current Product Map
 
 Ignoring the deeper noun redesign for the moment, the product appears to break
@@ -126,6 +148,10 @@ would benefit from stronger zoning between:
 - maintenance/debugging
 - authoring/staging helpers
 
+A specific noun-work question hiding here is that `session` and `agent`
+probably need to be treated as peers, with any symmetry or asymmetry between
+them made explicit and deliberate.
+
 ### 5. Work Substrate and Durable Records
 
 This is the "what persistent substrate does the system use?" layer.
@@ -170,6 +196,11 @@ question is whether the product should surface them as:
 
 - one coherent coordination story
 - or three peer subsystems
+
+The main caution here is ergonomics: commands like `mail`, `sling`, and maybe
+`nudge` feel a lot like "actually use the city now" operations. Even if they
+group cleanly, they may still deserve unusually prominent placement for
+approachability.
 
 ### 7. Declarative Automation and Reconciliation
 
@@ -229,6 +260,16 @@ being tracked elsewhere:
 
 This note does not try to settle those nouns. It only notes that any broader
 simplification pass will have to coexist with them.
+
+The clearest unresolved family here is:
+
+- `skill`
+- `mcp`
+- overlays
+
+They seem related enough that the noun work should likely reason about them
+together, including pack-wide/static forms as well as agent/session-attached
+forms.
 
 ## What the Product Feels Like Today
 
@@ -340,6 +381,10 @@ The main problem may not be that GC has too few abstractions. It may be that
 operator, authoring, substrate, and machine-admin workflows are all visible at
 once.
 
+That said, stronger zoning does not necessarily mean "everything gets nested."
+Some high-frequency "do this now" operations may still deserve valuable
+top-level real estate for ergonomics and approachability.
+
 ### Hypothesis 2: "Advanced/admin" surfaces should be named or grouped more deliberately
 
 Substrate-facing and maintenance-facing commands may belong in:
@@ -366,6 +411,9 @@ probably need one comparative design pass that asks:
 - where they overlap
 - which ones should be primary vs specialized
 
+This is also one of the clearest areas where noun work should probably land
+first, or at least proceed in tandem, before this doc tries to harden broader
+product zoning.
 ### Hypothesis 5: Product simplification and noun simplification should stay separate, but inform each other
 
 The noun redesign work is important, but it should not carry the burden of
@@ -393,7 +441,6 @@ These are the questions I would want this repo to work through next.
 This section is intentionally forward-looking. It does not prescribe the final
 product surface, but it does record the simplification moves that currently
 look most promising.
-
 ### 1. Deliberately separate machine admin from city workflow
 
 GC appears to contain two different operational worlds:
@@ -499,6 +546,10 @@ More specifically, I would expect that work to help by:
 - clarifying which ones are subresources or supporting components
 - making exact targeting and ownership more teachable
 - reducing today’s ambiguity around runtime vs template vs configuration nouns
+- settling `session` and `agent` together rather than separately
+- giving `skill`, `mcp`, and overlays a coherent shared pattern
+- preserving the value of the current skill concept even if it gets repackaged
+- clarifying which city-usage actions deserve top-level ergonomic treatment
 
 If that work succeeds, this repo should not need to re-argue noun identity. It
 should be able to focus on broader product questions like:
@@ -512,11 +563,27 @@ In other words:
 - noun work should make the objects clearer
 - this work should make the product easier to navigate
 
+## Recommended Sequencing
+
+My current recommendation is:
+
+1. keep this document as the product-map and pressure document
+2. let the noun work lead for a while, especially on `session`, `agent`,
+   `skill`, `mcp`, and overlays
+3. return to this note afterward to revisit product zoning with better object
+   definitions in hand
+
+That does not mean the two tracks are unrelated. It means this note has
+probably reached the point where sharper progress depends on the noun work.
+
 ## Strawman Command Tree
 
 This section is intentionally concrete. It is not presented as "the right
 answer." It is presented as a specific jumping-off point so we can react to
 tradeoffs and ergonomics.
+
+It should now be read as exploratory and provisional, not as the next thing to
+refine deeply before the noun work advances.
 
 ### Proposed top-level tree
 
@@ -572,7 +639,7 @@ What this does:
 - pulls the current top-level city lifecycle verbs under one noun
 - makes `status` explicitly city-scoped
 - keeps config and image staging close to the city they act on
-- removes the earlier asymmetry between `city` and `system city`
+- removes the earlier split-model asymmetry around city registration
 - makes `list/register/unregister` read like collection operations on cities
 
 The tradeoff is that `gc city` now spans both:
@@ -616,6 +683,19 @@ gc registry ...
 I would keep them top-level rather than bury them under `city`, because they
 are likely to stay important enough and broad enough to justify first-class
 status.
+
+That said, `registry` is one of the most debatable calls in the tree. It has
+very little maintenance surface, and the highest-frequency operation is really
+search. So a later simplification pass may reasonably conclude that:
+
+```text
+gc pack registry add
+gc pack registry list
+gc pack registry remove
+gc pack search
+```
+
+is a better ergonomic fit than keeping `registry` top-level.
 
 ### 4. Noun families
 
@@ -730,6 +810,9 @@ This is not because these names are perfect. It is because:
 - `handoff` feels like a session workflow
 - `prime` is really about rendering agent/session prompt material
 - `hook` feels more like advanced operational plumbing than normal workflow
+
+This section is also another reminder that the session scrub and the agent
+scrub probably need to happen together.
 
 ### 8. Expected `skill` / `mcp` organization
 
