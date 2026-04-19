@@ -523,7 +523,6 @@ tradeoffs and ergonomics.
 ```text
 gc
   city
-  system
   pack
   registry
   rig
@@ -546,7 +545,8 @@ This assumes the noun work lands well enough that:
 
 ### 1. `gc city`
 
-This becomes the front door for city-local lifecycle and authored city state.
+This becomes the front door for city-local lifecycle, authored city state, and
+city registration/enumeration.
 
 ```text
 gc city init
@@ -556,6 +556,11 @@ gc city restart
 gc city suspend
 gc city resume
 gc city status
+
+gc city list
+gc city register
+gc city unregister
+
 gc city config show
 gc city config explain
 gc city build-image
@@ -563,33 +568,40 @@ gc city build-image
 
 What this does:
 
+- keeps all city-shaped actions under one noun
 - pulls the current top-level city lifecycle verbs under one noun
 - makes `status` explicitly city-scoped
 - keeps config and image staging close to the city they act on
+- removes the earlier asymmetry between `city` and `system city`
+- makes `list/register/unregister` read like collection operations on cities
 
-### 2. `gc system`
+The tradeoff is that `gc city` now spans both:
 
-This becomes the system-admin surface.
+- the ambient/current city
+- the collection of machine-known cities
+
+I currently think that tradeoff is acceptable, and probably better than
+inventing a separate `system` noun just to host three city-related commands.
+
+### 2. `gc supervisor`
+
+This stays as the explicit machine-admin surface.
 
 ```text
-gc system city list
-gc system city register
-gc system city unregister
-
-gc system supervisor install
-gc system supervisor start
-gc system supervisor stop
-gc system supervisor status
-gc system supervisor logs
-gc system supervisor reload
-gc system supervisor run
-gc system supervisor uninstall
+gc supervisor install
+gc supervisor start
+gc supervisor stop
+gc supervisor status
+gc supervisor logs
+gc supervisor reload
+gc supervisor run
+gc supervisor uninstall
 ```
 
 What this does:
 
-- separates machine-known concerns from city workflow
-- gives `cities`, `register`, `unregister`, and `supervisor` a clear home
+- preserves a clear home for machine-wide supervisor management
+- avoids introducing a broader `system` noun before we know we need one
 
 ### 3. `gc pack` and `gc registry`
 
@@ -604,14 +616,6 @@ gc registry ...
 I would keep them top-level rather than bury them under `city`, because they
 are likely to stay important enough and broad enough to justify first-class
 status.
-
-The asymmetry with `gc system city register` is intentional in this strawman:
-
-- city registration is a system concern because it registers a city with the
-  system-known supervisor/discovery layer
-- registry add/remove stays under `gc registry` because it edits the registry
-  configuration object itself, and `search`/`show` already make `registry` a
-  coherent workflow family
 
 ### 4. Noun families
 
