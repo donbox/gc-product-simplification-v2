@@ -511,3 +511,261 @@ In other words:
 
 - noun work should make the objects clearer
 - this work should make the product easier to navigate
+
+## Strawman Command Tree
+
+This section is intentionally concrete. It is not presented as "the right
+answer." It is presented as a specific jumping-off point so we can react to
+tradeoffs and ergonomics.
+
+### Proposed top-level tree
+
+```text
+gc
+  city
+  machine
+  pack
+  registry
+  rig
+  session
+  agent
+  formula
+  order
+  coord
+  ops
+  help
+  version
+```
+
+This assumes the noun work lands well enough that:
+
+- `city`, `rig`, `session`, `agent`, `formula`, and `order` remain
+  first-class nouns
+- `skill` and `mcp` do **not** remain peer top-level nouns
+- `skill` and `mcp` instead become subresources of `agent` and/or `session`
+
+### 1. `gc city`
+
+This becomes the front door for city-local lifecycle and authored city state.
+
+```text
+gc city init
+gc city start
+gc city stop
+gc city restart
+gc city suspend
+gc city resume
+gc city status
+gc city config show
+gc city config explain
+gc city build-image
+```
+
+What this does:
+
+- pulls the current top-level city lifecycle verbs under one noun
+- makes `status` explicitly city-scoped
+- keeps config and image staging close to the city they act on
+
+### 2. `gc machine`
+
+This becomes the machine-admin surface.
+
+```text
+gc machine city list
+gc machine city register
+gc machine city unregister
+
+gc machine supervisor install
+gc machine supervisor start
+gc machine supervisor stop
+gc machine supervisor status
+gc machine supervisor logs
+gc machine supervisor reload
+gc machine supervisor run
+gc machine supervisor uninstall
+```
+
+What this does:
+
+- separates machine-known concerns from city workflow
+- gives `cities`, `register`, `unregister`, and `supervisor` a clear home
+
+### 3. `gc pack` and `gc registry`
+
+These follow the Pack/Registry proposal and stay as their own dedicated
+top-level families.
+
+```text
+gc pack ...
+gc registry ...
+```
+
+I would keep them top-level rather than bury them under `city`, because they
+are likely to stay important enough and broad enough to justify first-class
+status.
+
+### 4. Noun families
+
+These remain top-level because they are likely to be primary user-facing
+objects once the noun work lands.
+
+```text
+gc rig ...
+gc session ...
+gc agent ...
+gc formula ...
+gc order ...
+```
+
+I would expect these families to become the main "inside the city" working
+surface.
+
+### 5. `gc coord`
+
+This is the coordination/work-routing zone.
+
+```text
+gc coord mail ...
+gc coord convoy ...
+gc coord sling
+```
+
+Probable relocations:
+
+- current `gc mail ...` moves to `gc coord mail ...`
+- current `gc convoy ...` moves to `gc coord convoy ...`
+- current `gc sling` moves to `gc coord sling`
+
+Why I like this as a strawman:
+
+- it makes the coordination story explicit
+- it keeps work-routing and communication together
+- it avoids three peer top-level families for closely related behavior
+
+Why I am not certain:
+
+- `gc mail send` is ergonomically excellent today
+- `gc coord mail send` is more orderly but noticeably heavier
+
+This is exactly the kind of tradeoff worth pressure-testing.
+
+### 6. `gc ops`
+
+This is the operator/maintenance/diagnostics zone.
+
+```text
+gc ops doctor
+gc ops dashboard serve
+
+gc ops service list
+gc ops service doctor
+gc ops service restart
+
+gc ops runtime drain
+gc ops runtime drain-ack
+gc ops runtime drain-check
+gc ops runtime request-restart
+gc ops runtime undrain
+
+gc ops trace show
+gc ops trace start
+gc ops trace stop
+gc ops trace status
+gc ops trace reasons
+gc ops trace cycle
+gc ops trace tail
+
+gc ops event list
+gc ops event emit
+
+gc ops wait list
+gc ops wait inspect
+gc ops wait ready
+gc ops wait cancel
+
+gc ops graph
+gc ops beads health
+gc ops bd ...
+```
+
+Probable relocations:
+
+- `doctor`, `dashboard`, `service`, `runtime`, `trace`, `event/events`,
+  `wait`, `graph`, `beads`, and `bd` all move here
+
+What this does:
+
+- collects maintenance and introspection tools in one obvious zone
+- reduces the number of top-level specialist entry points
+- makes it clearer which commands are "work the product" versus
+  "inspect/operate the machinery"
+
+### 7. Smaller relocations
+
+I would also make these concrete moves:
+
+```text
+gc session nudge        # keep here; remove top-level gc nudge
+gc session handoff      # instead of top-level gc handoff
+gc agent prompt         # likely home for current gc prime
+gc ops hook ...         # likely home for current gc hook
+```
+
+This is not because these names are perfect. It is because:
+
+- `nudge` feels like a session interaction
+- `handoff` feels like a session workflow
+- `prime` is really about rendering agent/session prompt material
+- `hook` feels more like advanced operational plumbing than normal workflow
+
+### 8. Expected `skill` / `mcp` organization
+
+My current expectation is that these should not be top-level peers.
+
+Instead, I would expect something closer to:
+
+```text
+gc agent skill ...
+gc agent mcp ...
+```
+
+or:
+
+```text
+gc session skill ...
+gc session mcp ...
+```
+
+depending on what the noun work decides about template-time versus runtime-time
+ownership.
+
+That is one of the clearest product simplification wins available: do not make
+every component a peer noun unless it truly behaves like one.
+
+## Why This Strawman
+
+This proposal is trying to force a few product truths to become visible:
+
+- city-local workflow is not the same as machine admin
+- operator/diagnostic tooling is not the same as day-to-day workflow
+- coordination is a coherent story of its own
+- pack/registry is already coherent enough to stay first-class
+- not every internal concept deserves top-level noun status
+
+## Main Tradeoffs
+
+This strawman buys:
+
+- stronger zoning
+- fewer top-level specialist surprises
+- a more obvious split between primary and advanced/admin surfaces
+
+This strawman costs:
+
+- some commands get longer
+- some beloved direct top-level verbs become nested
+- it makes a bet that product clarity matters more than preserving every short
+  command form
+
+That is why I think it is a good jumping-off point even if we later soften it.
